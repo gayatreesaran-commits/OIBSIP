@@ -103,3 +103,11 @@ describe('scheduler', () => {
     expect(cron.tasks[0].stop).toHaveBeenCalled();
   });
 });
+
+describe('shipped job wiring', () => {
+  it('has a cron setting for every registered job name', async () => {
+    const { default: cronConfig } = await import('../../config/cron.config.js');
+    const { LOW_STOCK_JOB_NAME } = await import('../../src/jobs/lowStock.job.js');
+    expect(Object.keys(cronConfig)).toContain(LOW_STOCK_JOB_NAME);
+  });
+});

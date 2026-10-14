@@ -1,4 +1,5 @@
-export const LOW_STOCK_JOB_NAME = 'low-stock-alert';
+// Must match the key under which this job is configured in config/cron.config.js.
+export const LOW_STOCK_JOB_NAME = 'lowStock';
 
 export function createLowStockJob({ lowStockAlertService }) {
   return {
