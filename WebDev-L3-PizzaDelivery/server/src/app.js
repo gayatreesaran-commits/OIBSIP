@@ -5,10 +5,11 @@ import { errorHandler } from './middleware/errorHandler.js';
 import { notFound } from './middleware/notFound.js';
 import { createRateLimiter } from './middleware/rateLimiter.js';
 import { requestLogger } from './middleware/requestLogger.js';
+import { createContainer } from './container.js';
 import { createApiRouter } from './routes/index.js';
 
 /** Builds the Express app without binding a port, so tests can drive it directly. */
-export function createApp({ config, logger }) {
+export function createApp({ config, logger, container = createContainer({ config, logger }) }) {
   const { security, app: appConfig, env } = config;
   const app = express();
 
@@ -30,7 +31,7 @@ export function createApp({ config, logger }) {
     }),
   );
 
-  app.use(`${appConfig.api.prefix}/${appConfig.api.version}`, createApiRouter({ config }));
+  app.use(`${appConfig.api.prefix}/${appConfig.api.version}`, createApiRouter({ container }));
 
   app.use(notFound);
   app.use(errorHandler);
