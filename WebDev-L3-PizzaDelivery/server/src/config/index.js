@@ -1,5 +1,6 @@
 import appConfig from '../../config/app.config.js';
 import authConfig from '../../config/auth.config.js';
+import cronConfig from '../../config/cron.config.js';
 import inventoryConfig from '../../config/inventory.config.js';
 import mailConfig from '../../config/mail.config.js';
 import orderConfig from '../../config/order.config.js';
@@ -31,6 +32,7 @@ export function buildConfig(source = process.env, overrides = {}) {
     order: structuredClone(orderConfig),
     mail: structuredClone(mailConfig),
     payment: structuredClone(paymentConfig),
+    cron: structuredClone(cronConfig),
   };
   return deepFreeze({
     env,

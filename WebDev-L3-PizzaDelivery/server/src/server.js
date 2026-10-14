@@ -1,6 +1,9 @@
 import { buildConfig } from './config/index.js';
+import cron from 'node-cron';
 import { createApp } from './app.js';
+import { createContainer } from './container.js';
 import { connectDatabase, disconnectDatabase } from './db/connection.js';
+import { createScheduler } from './jobs/scheduler.js';
 import { createLogger } from './utils/logger.js';
 
 const FAILURE_EXIT_CODE = 1;
@@ -19,9 +22,17 @@ async function main() {
     logger,
   });
 
-  const app = createApp({ config, logger });
+  const container = createContainer({ config, logger });
+  const app = createApp({ config, logger, container });
+  const scheduler = createScheduler({
+    cron,
+    jobs: container.jobs,
+    settings: config.cron,
+    logger,
+  });
   const server = app.listen(config.env.PORT, () => {
     logger.info({ port: config.env.PORT, env: config.env.NODE_ENV }, 'server listening');
+    scheduler.start();
   });
 
   let shuttingDown = false;
@@ -36,6 +47,7 @@ async function main() {
     }, config.app.server.shutdownTimeoutMs);
     forceExit.unref();
 
+    scheduler.stop();
     server.close(async () => {
       await disconnectDatabase();
       logger.info('shutdown complete');

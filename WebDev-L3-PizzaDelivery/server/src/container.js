@@ -12,6 +12,8 @@ import { createInventoryService } from './services/inventory.service.js';
 import { createNotificationService } from './services/notification.service.js';
 import { createOrderService } from './services/order.service.js';
 import { createOrderStatusService } from './services/orderStatus.service.js';
+import { createLowStockJob } from './jobs/lowStock.job.js';
+import { createLowStockAlertService } from './services/lowStockAlert.service.js';
 import { createPasswordService } from './services/password.service.js';
 import { createPricingService } from './services/pricing.service.js';
 import { createTokenService } from './services/token.service.js';
@@ -95,10 +97,21 @@ export function createContainer({ config, logger, overrides = {} }) {
     logger,
   });
 
+  const lowStockAlertService = createLowStockAlertService({
+    inventoryRepository: repositories.inventory,
+    userRepository: repositories.user,
+    notificationService,
+    inventoryConfig: config.inventory,
+    clock,
+    logger,
+  });
+  const jobs = [createLowStockJob({ lowStockAlertService })];
+
   return {
     config,
     logger,
     clock,
+    jobs,
     repositories,
     providers,
     services: {
@@ -111,6 +124,7 @@ export function createContainer({ config, logger, overrides = {} }) {
       pricing: pricingService,
       catalog: catalogService,
       order: orderService,
+      lowStockAlert: lowStockAlertService,
     },
   };
 }
