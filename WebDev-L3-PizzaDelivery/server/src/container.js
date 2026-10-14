@@ -1,12 +1,19 @@
+import { createTransactionRunner } from './db/transaction.js';
 import { inventoryRepository } from './repositories/inventory.repository.js';
+import { orderRepository } from './repositories/order.repository.js';
 import { pizzaRepository } from './repositories/pizza.repository.js';
 import { tokenRepository } from './repositories/token.repository.js';
 import { userRepository } from './repositories/user.repository.js';
 import { createEmailProvider } from './providers/email/index.js';
 import { createPaymentProvider } from './providers/payment/index.js';
 import { createAuthService } from './services/auth.service.js';
+import { createCatalogService } from './services/catalog.service.js';
+import { createInventoryService } from './services/inventory.service.js';
 import { createNotificationService } from './services/notification.service.js';
+import { createOrderService } from './services/order.service.js';
+import { createOrderStatusService } from './services/orderStatus.service.js';
 import { createPasswordService } from './services/password.service.js';
+import { createPricingService } from './services/pricing.service.js';
 import { createTokenService } from './services/token.service.js';
 import { systemClock } from './utils/clock.js';
 
@@ -17,12 +24,14 @@ import { systemClock } from './utils/clock.js';
 export function createContainer({ config, logger, overrides = {} }) {
   const { env } = config;
   const clock = overrides.clock ?? systemClock;
+  const runInTransaction = overrides.runInTransaction ?? createTransactionRunner();
 
   const repositories = {
     user: userRepository,
     token: tokenRepository,
     inventory: inventoryRepository,
     pizza: pizzaRepository,
+    order: orderRepository,
     ...overrides.repositories,
   };
 
@@ -57,6 +66,35 @@ export function createContainer({ config, logger, overrides = {} }) {
     logger,
   });
 
+  const orderStatusService = createOrderStatusService({ orderConfig: config.order });
+  const inventoryService = createInventoryService({
+    inventoryRepository: repositories.inventory,
+    inventoryConfig: config.inventory,
+  });
+  const pricingService = createPricingService({
+    pizzaRepository: repositories.pizza,
+    inventoryRepository: repositories.inventory,
+    inventoryConfig: config.inventory,
+    orderConfig: config.order,
+  });
+  const catalogService = createCatalogService({
+    pizzaRepository: repositories.pizza,
+    inventoryRepository: repositories.inventory,
+    inventoryConfig: config.inventory,
+  });
+  const orderService = createOrderService({
+    orderRepository: repositories.order,
+    pricingService,
+    inventoryService,
+    orderStatusService,
+    paymentProvider: providers.payment,
+    paymentConfig: config.payment,
+    appConfig: config.app,
+    runInTransaction,
+    clock,
+    logger,
+  });
+
   return {
     config,
     logger,
@@ -68,6 +106,11 @@ export function createContainer({ config, logger, overrides = {} }) {
       token: tokenService,
       notification: notificationService,
       auth: authService,
+      orderStatus: orderStatusService,
+      inventory: inventoryService,
+      pricing: pricingService,
+      catalog: catalogService,
+      order: orderService,
     },
   };
 }
