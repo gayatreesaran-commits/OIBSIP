@@ -3,8 +3,8 @@ import { AppError } from './AppError.js';
 import { ConflictError } from './httpErrors.js';
 
 export class OutOfStockError extends ConflictError {
-  constructor(shortages) {
-    super('Some ingredients are no longer available', { shortages }, ERROR_CODE.OUT_OF_STOCK);
+  constructor(shortages, message = 'Some ingredients are no longer available') {
+    super(message, { shortages }, ERROR_CODE.OUT_OF_STOCK);
   }
 }
 
