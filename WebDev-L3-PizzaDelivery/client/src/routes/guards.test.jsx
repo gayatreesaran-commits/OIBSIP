@@ -21,6 +21,7 @@ function renderRoutes(route) {
         <Route path={ROUTES.home} element={<p>customer home</p>} />
       </Route>
       <Route element={<RequireAdmin />}>
+        <Route path={ROUTES.admin.orders} element={<p>admin orders board</p>} />
         <Route path={ROUTES.admin.inventory} element={<p>admin inventory</p>} />
       </Route>
     </Routes>,
@@ -61,7 +62,7 @@ describe('route guards', () => {
     sessionStore.write({ accessToken: 't' });
     vi.spyOn(authApi, 'me').mockResolvedValue({ user: admin });
     renderRoutes(ROUTES.home);
-    expect(await screen.findByText('admin inventory')).toBeInTheDocument();
+    expect(await screen.findByText('admin orders board')).toBeInTheDocument();
   });
 
   it('sends anonymous visitors of the admin area to the staff sign-in', async () => {

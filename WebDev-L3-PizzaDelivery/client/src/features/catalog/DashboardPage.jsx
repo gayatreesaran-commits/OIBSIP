@@ -21,8 +21,7 @@ export function DashboardPage() {
             Hungry, {user?.name?.split(' ')[0]}?
           </h1>
           <p className="mt-3 max-w-xl text-lg text-ink-soft">
-            Pick a house favourite, or stack your own from five bases, five sauces, cheese and as
-            many as six vegetables.
+            Pick a house favourite, or stack your own pizza from base to toppings.
           </p>
         </div>
         <Link

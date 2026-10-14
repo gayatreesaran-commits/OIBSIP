@@ -20,7 +20,7 @@ export function RequireCustomer() {
   return (
     <Gate
       allow={(auth) => auth.isCustomer}
-      redirectTo={(auth) => (auth.isAdmin ? ROUTES.admin.inventory : ROUTES.login)}
+      redirectTo={(auth) => (auth.isAdmin ? ROUTES.admin.orders : ROUTES.login)}
       rememberLocation
     />
   );
@@ -40,7 +40,7 @@ export function GuestOnly() {
   return (
     <Gate
       allow={(auth) => auth.status === AUTH_STATUS.ANONYMOUS}
-      redirectTo={(auth) => (auth.isAdmin ? ROUTES.admin.inventory : ROUTES.home)}
+      redirectTo={(auth) => (auth.isAdmin ? ROUTES.admin.orders : ROUTES.home)}
     />
   );
 }
