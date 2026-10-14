@@ -14,6 +14,7 @@ async function main() {
     name: config.app.name,
     level: config.env.LOG_LEVEL,
     redactPaths: config.security.logRedactPaths,
+    pretty: config.env.LOG_PRETTY,
   });
 
   await connectDatabase({

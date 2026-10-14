@@ -15,6 +15,8 @@ const baseSchema = z.object({
   NODE_ENV: z.enum(Object.values(NODE_ENV)).default(NODE_ENV.DEVELOPMENT),
   PORT: z.coerce.number().int().positive().max(MAX_TCP_PORT).default(appConfig.server.defaultPort),
   LOG_LEVEL: z.enum(Object.values(LOG_LEVEL)).default(LOG_LEVEL.INFO),
+  // Human-readable colourised logs for local development; leave off in production.
+  LOG_PRETTY: z.stringbool().default(false),
 
   MONGODB_URI: z
     .string()

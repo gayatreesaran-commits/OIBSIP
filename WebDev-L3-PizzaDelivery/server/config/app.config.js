@@ -11,7 +11,7 @@ export default {
     version: 'v1',
   },
   database: {
-    serverSelectionTimeoutMs: 10 * SECOND_MS,
+    serverSelectionTimeoutMS: 10 * SECOND_MS,
     maxPoolSize: 10,
     connectAttempts: 3,
     retryDelayMs: 2 * SECOND_MS,
