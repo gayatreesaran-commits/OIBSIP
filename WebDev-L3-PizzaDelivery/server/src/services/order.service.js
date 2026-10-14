@@ -43,6 +43,13 @@ export function createOrderService({
     });
 
   return {
+    /** Server-authoritative price and availability check for the summary page. Persists nothing. */
+    async quote({ lines }) {
+      const priced = await pricingService.priceCart(lines);
+      await inventoryService.assertAvailable(inventoryService.requirementsFor(priced.lines));
+      return priced;
+    },
+
     /** Prices the cart server-side, opens a gateway order and stores ours as awaiting payment. */
     async placeOrder({ userId, lines }) {
       const priced = await pricingService.priceCart(lines);

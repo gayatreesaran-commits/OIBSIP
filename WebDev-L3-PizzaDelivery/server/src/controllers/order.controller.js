@@ -5,6 +5,25 @@ export function createOrderController({ orderService, orderStatusService }) {
   const present = (order) => toOrderDto(order, orderStatusService);
 
   return {
+    async quote(req, res) {
+      const { lines, amountMinor, currency } = await orderService.quote({
+        lines: req.valid.body.lines,
+      });
+      res.json({
+        quote: {
+          amountMinor,
+          currency,
+          lines: lines.map((line) => ({
+            kind: line.kind,
+            name: line.name,
+            quantity: line.quantity,
+            unitPriceMinor: line.unitPriceMinor,
+            ingredients: line.ingredients.map(({ name, category }) => ({ name, category })),
+          })),
+        },
+      });
+    },
+
     async place(req, res) {
       const { order, checkout } = await orderService.placeOrder({
         userId: req.auth.userId,

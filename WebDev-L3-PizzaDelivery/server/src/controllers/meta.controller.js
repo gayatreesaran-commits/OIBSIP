@@ -9,7 +9,13 @@ export function createMetaController({ config, paymentProvider }) {
     limits: order.limits,
     polling: app.clientPolling,
     orderStatus: { labels: order.statusLabels, trackerSteps: order.trackerSteps },
-    passwordPolicy: auth.password,
+    passwordPolicy: {
+      minLength: auth.password.minLength,
+      maxLength: auth.password.maxLength,
+      requireDigit: auth.password.requireDigit,
+      requireLetter: auth.password.requireLetter,
+    },
+    pricing: { customPizzaPreparationFeeMinor: order.pricing.customPizzaPreparationFeeMinor },
     payment: {
       ...paymentProvider.describeForClient(),
       simulatedCheckout: typeof paymentProvider.simulateCheckout === 'function',

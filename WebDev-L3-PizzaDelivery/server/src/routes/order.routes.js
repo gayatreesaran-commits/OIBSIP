@@ -9,6 +9,7 @@ export function createOrderRoutes({ controller, schemas, authenticate }) {
 
   const byId = { params: schemas.idParam };
 
+  router.post('/quote', validate({ body: schemas.placeOrder }), controller.quote);
   router.post('/', validate({ body: schemas.placeOrder }), controller.place);
   router.get('/', controller.listMine);
   router.get('/:id', validate(byId), controller.getMine);
