@@ -178,13 +178,13 @@ export function createOrderService({
     listMine: (userId) => orderRepository.listByUser(userId),
     getMine: (userId, orderId) => loadOwned(userId, orderId),
 
-    async listAll({ status, page, pageSize }) {
+    async listAll({ status: statuses, page, pageSize }) {
       const limit = Math.min(
         pageSize ?? appConfig.pagination.defaultPageSize,
         appConfig.pagination.maxPageSize,
       );
       const { orders, total } = await orderRepository.listPage({
-        status,
+        statuses,
         skip: (page - 1) * limit,
         limit,
       });

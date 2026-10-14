@@ -42,7 +42,12 @@ export function buildOrderSchemas({ orderConfig, inventoryConfig, appConfig }) {
     }),
     mockCheckout: z.strictObject({ outcome: z.enum(Object.values(MOCK_OUTCOME)) }),
     adminOrderList: z.strictObject({
-      status: z.enum(Object.values(ORDER_STATUS)).optional(),
+      // One status or a comma-separated list, e.g. `status=order_received,in_kitchen`.
+      status: z
+        .string()
+        .transform((value) => value.split(','))
+        .pipe(z.array(z.enum(Object.values(ORDER_STATUS))).min(1))
+        .optional(),
       page: z.coerce.number().int().min(1).default(1),
       pageSize: z.coerce.number().int().min(1).max(appConfig.pagination.maxPageSize).optional(),
     }),

@@ -125,6 +125,13 @@ describe('order management', () => {
 
     const none = await asAdmin(api.get(`${base}/admin/orders?status=${ORDER_STATUS.IN_KITCHEN}`));
     expect(none.body.total).toBe(0);
+
+    const several = ['order_received', ORDER_STATUS.IN_KITCHEN].join(',');
+    const paid = await asAdmin(api.get(`${base}/admin/orders?status=${several}`));
+    expect(paid.body.total).toBe(1);
+
+    const unknown = await asAdmin(api.get(`${base}/admin/orders?status=bogus`));
+    expect(unknown.status).toBe(HTTP_STATUS.BAD_REQUEST);
   });
 
   it('walks an order through the kitchen and the customer sees each step', async () => {

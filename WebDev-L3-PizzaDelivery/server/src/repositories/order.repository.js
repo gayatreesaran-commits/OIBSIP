@@ -15,9 +15,9 @@ export const orderRepository = {
     return Order.find({ user: userId }).sort({ createdAt: -1 });
   },
 
-  /** Admin listing, newest first, optionally narrowed to one status. */
-  async listPage({ status, skip, limit }) {
-    const filter = status ? { status } : {};
+  /** Admin listing, newest first, optionally narrowed to some statuses. */
+  async listPage({ statuses, skip, limit }) {
+    const filter = statuses ? { status: { $in: statuses } } : {};
     const [orders, total] = await Promise.all([
       Order.find(filter)
         .sort({ createdAt: -1 })

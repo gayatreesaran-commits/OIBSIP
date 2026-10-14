@@ -127,8 +127,10 @@ export function createFakeOrderRepository({ clock, userRepository }) {
     async listByUser(userId) {
       return orders.filter((order) => String(order.user) === String(userId)).reverse();
     },
-    async listPage({ status, skip, limit }) {
-      const matching = orders.filter((order) => !status || order.status === status).reverse();
+    async listPage({ statuses, skip, limit }) {
+      const matching = orders
+        .filter((order) => !statuses || statuses.includes(order.status))
+        .reverse();
       const page = matching.slice(skip, skip + limit).map((order) => ({
         ...order,
         user: userRepository.users.find((user) => user._id === String(order.user)) ?? order.user,
