@@ -36,6 +36,9 @@ export function createFakeUserRepository() {
     async findByEmailWithPassword(email) {
       return users.find((user) => user.email === email) ?? null;
     },
+    async listByRole(role) {
+      return users.filter((user) => user.role === role);
+    },
     async markEmailVerified(id) {
       const user = users.find((candidate) => candidate._id === String(id));
       if (user) user.isEmailVerified = true;

@@ -49,6 +49,26 @@ export function createFakeInventoryRepository({ inventorySeed, inventoryConfig }
       if (quantity >= item.threshold) item.lastAlertedAt = null;
       return item;
     },
+    async claimLowStock({ now, cooldownMs }) {
+      const staleBefore = now.getTime() - cooldownMs;
+      const claimed = items.filter(
+        (item) =>
+          item.isActive &&
+          item.quantity < item.threshold &&
+          (item.lastAlertedAt === null || item.lastAlertedAt.getTime() < staleBefore),
+      );
+      claimed.forEach((item) => {
+        item.lastAlertedAt = now;
+      });
+      return claimed;
+    },
+    async releaseLowStockClaims(ids) {
+      items
+        .filter((item) => ids.includes(item._id))
+        .forEach((item) => {
+          item.lastAlertedAt = null;
+        });
+    },
     async updateThreshold({ id, threshold }) {
       const item = find(id);
       if (!item) return null;
