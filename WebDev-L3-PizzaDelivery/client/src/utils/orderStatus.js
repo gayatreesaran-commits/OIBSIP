@@ -10,3 +10,11 @@ export function nextKitchenStatus(status, trackerSteps) {
   const index = trackerSteps.indexOf(status);
   return index === -1 ? null : (trackerSteps[index + 1] ?? null);
 }
+
+/**
+ * How long to wait before asking about an order again, or false to stop. Unknown status
+ * (first load) keeps polling; a final status ends it.
+ */
+export function pollIntervalFor(status, { trackerSteps, intervalMs }) {
+  return status && isTerminalStatus(status, trackerSteps) ? false : intervalMs;
+}
