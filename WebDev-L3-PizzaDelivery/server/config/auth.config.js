@@ -14,8 +14,16 @@ export default {
     requireDigit: true,
     requireLetter: true,
   },
+  profile: {
+    nameMaxLength: 80,
+    emailMaxLength: 254,
+  },
+  admin: {
+    defaultName: 'Administrator',
+  },
   oneTimeTokens: {
     byteLength: 32,
+    maxLength: 512,
     verifyEmailTtlMs: DAY_MS,
     resetPasswordTtlMs: HOUR_MS,
     resendCooldownMs: 2 * MINUTE_MS,

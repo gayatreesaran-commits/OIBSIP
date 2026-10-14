@@ -6,6 +6,7 @@ import orderConfig from '../../config/order.config.js';
 import paymentConfig from '../../config/payment.config.js';
 import securityConfig from '../../config/security.config.js';
 import { NODE_ENV } from '../constants/index.js';
+import { deepMerge } from '../utils/merge.js';
 import { parseEnv } from './env.js';
 
 function deepFreeze(value) {
@@ -16,12 +17,13 @@ function deepFreeze(value) {
   return value;
 }
 
-/** Builds the immutable application config from an env source. Pure, so tests can call it. */
-export function buildConfig(source = process.env) {
+/**
+ * Builds the immutable application config from an env source. Pure, so tests can call it.
+ * `overrides` patches the file-based tunables (never env), e.g. cheaper bcrypt rounds in tests.
+ */
+export function buildConfig(source = process.env, overrides = {}) {
   const env = parseEnv(source);
-  return deepFreeze({
-    env,
-    isProduction: env.NODE_ENV === NODE_ENV.PRODUCTION,
+  const tunables = {
     app: structuredClone(appConfig),
     auth: structuredClone(authConfig),
     security: structuredClone(securityConfig),
@@ -29,5 +31,10 @@ export function buildConfig(source = process.env) {
     order: structuredClone(orderConfig),
     mail: structuredClone(mailConfig),
     payment: structuredClone(paymentConfig),
+  };
+  return deepFreeze({
+    env,
+    isProduction: env.NODE_ENV === NODE_ENV.PRODUCTION,
+    ...deepMerge(tunables, overrides),
   });
 }

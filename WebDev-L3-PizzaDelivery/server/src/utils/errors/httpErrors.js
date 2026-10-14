@@ -17,6 +17,12 @@ export class MalformedRequestError extends AppError {
   }
 }
 
+export class InvalidTokenError extends AppError {
+  constructor(message = 'This link is invalid or has expired') {
+    super(message, { statusCode: HTTP_STATUS.BAD_REQUEST, code: ERROR_CODE.INVALID_TOKEN });
+  }
+}
+
 export class UnauthenticatedError extends AppError {
   constructor(message = 'Authentication required') {
     super(message, { statusCode: HTTP_STATUS.UNAUTHORIZED, code: ERROR_CODE.UNAUTHENTICATED });
