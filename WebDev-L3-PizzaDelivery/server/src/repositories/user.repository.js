@@ -18,6 +18,10 @@ export const userRepository = {
     return User.findOne({ email }).select('+passwordHash');
   },
 
+  listByRole(role) {
+    return User.find({ role });
+  },
+
   markEmailVerified(id) {
     return User.findByIdAndUpdate(id, { isEmailVerified: true }, { returnDocument: 'after' });
   },

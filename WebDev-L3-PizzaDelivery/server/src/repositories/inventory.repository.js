@@ -68,6 +68,37 @@ export const inventoryRepository = {
     );
   },
 
+  /**
+   * Atomically claims every item that is below its threshold and has not been alerted within
+   * the cooldown, stamping `lastAlertedAt`. Each claim is its own guarded update, so two app
+   * instances running the job at once can never alert for the same item twice.
+   */
+  async claimLowStock({ now, cooldownMs }) {
+    const staleBefore = new Date(now.getTime() - cooldownMs);
+    const filter = {
+      isActive: true,
+      $expr: { $lt: ['$quantity', '$threshold'] },
+      $or: [{ lastAlertedAt: null }, { lastAlertedAt: { $lt: staleBefore } }],
+    };
+
+    const candidates = await InventoryItem.find(filter).select('_id');
+    const claimed = await Promise.all(
+      candidates.map((candidate) =>
+        InventoryItem.findOneAndUpdate(
+          { ...filter, _id: candidate._id },
+          { $set: { lastAlertedAt: now } },
+          { returnDocument: 'after' },
+        ),
+      ),
+    );
+    return claimed.filter(Boolean);
+  },
+
+  /** Gives claims back after a failed send so the next run retries them. */
+  releaseLowStockClaims(ids) {
+    return InventoryItem.updateMany({ _id: { $in: ids } }, { $set: { lastAlertedAt: null } });
+  },
+
   updateThreshold({ id, threshold }) {
     return InventoryItem.findOneAndUpdate(
       { _id: id },
