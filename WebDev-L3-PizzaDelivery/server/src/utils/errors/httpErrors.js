@@ -24,8 +24,8 @@ export class UnauthenticatedError extends AppError {
 }
 
 export class ForbiddenError extends AppError {
-  constructor(message = 'You do not have access to this resource') {
-    super(message, { statusCode: HTTP_STATUS.FORBIDDEN, code: ERROR_CODE.FORBIDDEN });
+  constructor(message = 'You do not have access to this resource', code = ERROR_CODE.FORBIDDEN) {
+    super(message, { statusCode: HTTP_STATUS.FORBIDDEN, code });
   }
 }
 
@@ -36,8 +36,14 @@ export class NotFoundError extends AppError {
 }
 
 export class ConflictError extends AppError {
-  constructor(message = 'Resource already exists', details) {
-    super(message, { statusCode: HTTP_STATUS.CONFLICT, code: ERROR_CODE.CONFLICT, details });
+  constructor(message = 'Resource already exists', details, code = ERROR_CODE.CONFLICT) {
+    super(message, { statusCode: HTTP_STATUS.CONFLICT, code, details });
+  }
+}
+
+export class UnprocessableError extends AppError {
+  constructor(message, code, details) {
+    super(message, { statusCode: HTTP_STATUS.UNPROCESSABLE_ENTITY, code, details });
   }
 }
 
@@ -47,5 +53,13 @@ export class TooManyRequestsError extends AppError {
       statusCode: HTTP_STATUS.TOO_MANY_REQUESTS,
       code: ERROR_CODE.RATE_LIMITED,
     });
+  }
+}
+
+/** A downstream service (payment gateway, mail server) failed; the cause is logged, not shown. */
+export class UpstreamError extends AppError {
+  constructor(message, code, cause) {
+    super(message, { statusCode: HTTP_STATUS.BAD_GATEWAY, code, cause });
+    this.expose = true;
   }
 }
