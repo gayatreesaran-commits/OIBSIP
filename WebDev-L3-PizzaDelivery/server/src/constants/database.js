@@ -7,3 +7,6 @@ export const DB_READY_STATE = Object.freeze({
   CONNECTING: 2,
   DISCONNECTING: 3,
 });
+
+// 24 hex characters: the string form of a MongoDB ObjectId.
+export const OBJECT_ID_PATTERN = /^[a-f\d]{24}$/i;
