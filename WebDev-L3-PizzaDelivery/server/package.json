@@ -15,8 +15,8 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "vitest run",
-    "test:watch": "vitest"
+    "test": "node tests/support/runWithMongo.js",
+    "test:watch": "node tests/support/runWithMongo.js watch"
   },
   "dependencies": {
     "cors": "^2.8.6",

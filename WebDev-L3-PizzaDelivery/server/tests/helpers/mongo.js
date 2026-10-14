@@ -1,22 +1,29 @@
 import mongoose from 'mongoose';
-import { MongoMemoryReplSet } from 'mongodb-memory-server';
+
+/** Database suites use `describe.skipIf(!hasTestDatabase)` so a missing mongod never fakes a pass. */
+export const hasTestDatabase = Boolean(process.env.TEST_MONGODB_URI);
 
 /**
- * Starts an in-memory replica set. A replica set (not a standalone server) is required
- * because the app relies on multi-document transactions for stock and payments.
+ * Connects mongoose to the replica set provided by tests/support/runWithMongo.js, using a
+ * database name unique to the calling test file so files can run in parallel.
  */
-export async function startTestDatabase() {
-  const replSet = await MongoMemoryReplSet.create({ replSet: { count: 1 } });
-  await mongoose.connect(replSet.getUri());
+export async function connectTestDatabase(name) {
+  const base = process.env.TEST_MONGODB_URI;
+  if (!base) {
+    throw new Error('TEST_MONGODB_URI is not set. Run the suite with `pnpm test`.');
+  }
+  const uri = new URL(base);
+  uri.pathname = `/${name}`;
+  await mongoose.connect(uri.toString());
 
   return {
     async reset() {
       const collections = await mongoose.connection.db.collections();
       await Promise.all(collections.map((collection) => collection.deleteMany({})));
     },
-    async stop() {
+    async close() {
+      await mongoose.connection.dropDatabase();
       await mongoose.disconnect();
-      await replSet.stop();
     },
   };
 }

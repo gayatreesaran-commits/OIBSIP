@@ -1,19 +1,20 @@
 import mongoose from 'mongoose';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { isDatabaseReady } from '../../src/db/connection.js';
-import { startTestDatabase } from '../helpers/mongo.js';
+import { connectTestDatabase, hasTestDatabase } from '../helpers/mongo.js';
 
 let database;
 
 beforeAll(async () => {
-  database = await startTestDatabase();
+  if (!hasTestDatabase) return;
+  database = await connectTestDatabase('infra_smoke');
 });
 
 afterAll(async () => {
-  await database?.stop();
+  await database?.close();
 });
 
-describe('test database harness', () => {
+describe.skipIf(!hasTestDatabase)('test database harness', () => {
   it('connects and reports ready', () => {
     expect(isDatabaseReady()).toBe(true);
   });
