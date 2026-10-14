@@ -1,8 +1,17 @@
+import inventoryConfigFile from '../../config/inventory.config.js';
+import inventorySeed from '../../config/inventory.seed.json' with { type: 'json' };
+import menuSeed from '../../config/menu.seed.json' with { type: 'json' };
 import { createApp } from '../../src/app.js';
 import { buildConfig } from '../../src/config/index.js';
 import { createContainer } from '../../src/container.js';
 import { createLogger } from '../../src/utils/logger.js';
 import { deepMerge } from '../../src/utils/merge.js';
+import {
+  createFakeInventoryRepository,
+  createFakeOrderRepository,
+  createFakePizzaRepository,
+  createFakeTransactionRunner,
+} from './fakeCatalog.js';
 import {
   createFakeClock,
   createFakeEmailProvider,
@@ -14,10 +23,25 @@ import {
 const TEST_BCRYPT_ROUNDS = 4;
 const TEST_CONFIG_OVERRIDES = { auth: { password: { bcryptRounds: TEST_BCRYPT_ROUNDS } } };
 
+function buildFakes(clock) {
+  const user = createFakeUserRepository();
+  const inventory = createFakeInventoryRepository({
+    inventorySeed,
+    inventoryConfig: inventoryConfigFile,
+  });
+  const pizza = createFakePizzaRepository({ menuSeed, inventoryRepository: inventory });
+  const order = createFakeOrderRepository({ clock, userRepository: user });
+  return {
+    emailProvider: createFakeEmailProvider(),
+    repositories: { user, token: createFakeTokenRepository(clock), inventory, pizza, order },
+    runInTransaction: createFakeTransactionRunner([inventory, order]),
+  };
+}
+
 /**
  * Builds the real app against the test env from vitest.config.js, with in-memory
- * repositories and a recording email provider so no database or network is involved.
- * Pass `useFakes: false` for suites that run against a real database.
+ * repositories seeded from the shipped catalog and a recording email provider, so no
+ * database or network is involved. Pass `useFakes: false` for database-backed suites.
  */
 export function createTestApp({
   envOverrides = {},
@@ -36,15 +60,7 @@ export function createTestApp({
   });
 
   const clock = overrides.clock ?? createFakeClock();
-  const fakes = useFakes
-    ? {
-        emailProvider: createFakeEmailProvider(),
-        repositories: {
-          user: createFakeUserRepository(),
-          token: createFakeTokenRepository(clock),
-        },
-      }
-    : {};
+  const fakes = useFakes ? buildFakes(clock) : {};
 
   const container = createContainer({
     config,
