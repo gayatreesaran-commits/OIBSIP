@@ -10,8 +10,10 @@ export default {
   },
   rateLimit: {
     standardHeaders: 'draft-8',
-    general: { windowMs: 15 * MINUTE_MS, limit: 300 },
-    auth: { windowMs: 15 * MINUTE_MS, limit: 20 },
+    // Per client IP. Sized for two browser tabs polling every few seconds plus normal use.
+    general: { windowMs: 15 * MINUTE_MS, limit: 1_500 },
+    // Credential endpoints only (login, register, reset); never session restore or polling.
+    auth: { windowMs: 15 * MINUTE_MS, limit: 30 },
   },
   logRedactPaths: [
     'req.headers.authorization',

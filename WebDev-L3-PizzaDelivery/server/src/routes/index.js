@@ -28,9 +28,9 @@ export function createApiRouter({ container }) {
   const router = Router();
 
   const authenticate = createAuthenticate({ tokenService: services.token });
-  const authLimiter = createRateLimiter(config.security.rateLimit.auth, {
-    standardHeaders: config.security.rateLimit.standardHeaders,
-  });
+  const { rateLimit } = config.security;
+  const newAuthLimiter = () =>
+    createRateLimiter(rateLimit.auth, { standardHeaders: rateLimit.standardHeaders });
   const authSchemas = buildAuthSchemas(config.auth);
   const orderSchemas = buildOrderSchemas({
     orderConfig: config.order,
@@ -57,7 +57,7 @@ export function createApiRouter({ container }) {
       controller: createAuthController({ authService: services.auth }),
       schemas: authSchemas,
       authenticate,
-      authLimiter,
+      authLimiter: newAuthLimiter(),
     }),
   );
   router.use(
@@ -78,7 +78,7 @@ export function createApiRouter({ container }) {
     createAdminAuthRoutes({
       controller: createAdminAuthController({ authService: services.auth }),
       schemas: authSchemas,
-      authLimiter,
+      authLimiter: newAuthLimiter(),
     }),
   );
   const adminOnly = [authenticate, requireRole(ROLE.ADMIN)];
