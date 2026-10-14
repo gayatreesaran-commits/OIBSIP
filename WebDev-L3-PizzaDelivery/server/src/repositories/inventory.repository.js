@@ -64,7 +64,7 @@ export const inventoryRepository = {
           },
         },
       ],
-      { returnDocument: 'after' },
+      { returnDocument: 'after', updatePipeline: true },
     );
   },
 
@@ -110,7 +110,7 @@ export const inventoryRepository = {
           },
         },
       ],
-      { returnDocument: 'after' },
+      { returnDocument: 'after', updatePipeline: true },
     );
   },
 };
