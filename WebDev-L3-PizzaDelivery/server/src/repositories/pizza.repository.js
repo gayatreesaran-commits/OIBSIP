@@ -9,11 +9,12 @@ export const pizzaRepository = {
     );
   },
 
+  /** Menu pizzas with their ingredient documents resolved, for display and stock checks. */
   listAvailable() {
-    return Pizza.find({ isAvailable: true }).sort({ name: 1 });
+    return Pizza.find({ isAvailable: true }).sort({ name: 1 }).populate('ingredients');
   },
 
-  findById(id) {
-    return Pizza.findById(id);
+  findManyByIds(ids) {
+    return Pizza.find({ _id: { $in: ids }, isAvailable: true }).populate('ingredients');
   },
 };

@@ -14,6 +14,7 @@ export default {
     maxLinesPerOrder: 10,
   },
   pricing: {
+    customPizzaName: 'Custom Pizza',
     customPizzaPreparationFeeMinor: 5_000,
   },
   statusLabels: {
