@@ -60,7 +60,8 @@ export function createTestApp({
   });
 
   const clock = overrides.clock ?? createFakeClock();
-  const fakes = useFakes ? buildFakes(clock) : {};
+  // Outgoing mail is always captured, even when repositories are real.
+  const fakes = useFakes ? buildFakes(clock) : { emailProvider: createFakeEmailProvider() };
 
   const container = createContainer({
     config,
