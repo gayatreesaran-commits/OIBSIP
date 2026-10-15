@@ -2,6 +2,9 @@
 
 export const APP_NAME = 'Slice Society';
 
+// Shown in the cart for a pizza the customer assembled in the builder.
+export const CUSTOM_PIZZA_LABEL = 'Custom pizza';
+
 export const ROLE = Object.freeze({
   CUSTOMER: 'customer',
   ADMIN: 'admin',

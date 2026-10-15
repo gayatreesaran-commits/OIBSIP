@@ -3,6 +3,9 @@
  * API's step definitions, so changing them server-side changes the UI without a code change.
  */
 
+/** A step that allows exactly one option behaves like a radio group. */
+export const SINGLE_CHOICE_MAX = 1;
+
 export const BUILDER_ACTION = Object.freeze({ TOGGLE: 'toggle', RESET: 'reset' });
 
 export const initialBuilderState = Object.freeze({ selections: {} });
@@ -17,7 +20,7 @@ export function builderReducer(state, action) {
       const { step, optionId } = action;
       const current = state.selections[step.category] ?? [];
       let next;
-      if (step.max === 1) {
+      if (step.max === SINGLE_CHOICE_MAX) {
         next = current[0] === optionId ? [] : [optionId];
       } else if (current.includes(optionId)) {
         next = current.filter((id) => id !== optionId);

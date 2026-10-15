@@ -1,5 +1,5 @@
 import { useClientConfig } from '../../context/ClientConfigContext.jsx';
-import { selectedIds } from './builderState.js';
+import { SINGLE_CHOICE_MAX, selectedIds } from './builderState.js';
 
 function selectionHint({ min, max }) {
   if (min === max) return `Choose ${max}`;
@@ -10,7 +10,7 @@ function selectionHint({ min, max }) {
 export function StepOptions({ step, state, onToggle }) {
   const { formatMoney } = useClientConfig();
   const chosen = selectedIds(state, step);
-  const single = step.max === 1;
+  const single = step.max === SINGLE_CHOICE_MAX;
   const limitReached = chosen.length >= step.max;
 
   return (

@@ -5,7 +5,7 @@ import { catalogApi } from '../../api/catalog.api.js';
 import { Button } from '../../components/ui/Button.jsx';
 import { ErrorBanner } from '../../components/ui/ErrorBanner.jsx';
 import { Spinner } from '../../components/ui/Spinner.jsx';
-import { QUERY_KEY } from '../../config/constants.js';
+import { CUSTOM_PIZZA_LABEL, QUERY_KEY } from '../../config/constants.js';
 import { ROUTES } from '../../config/routes.js';
 import { useCart } from '../../context/CartContext.jsx';
 import { useClientConfig } from '../../context/ClientConfigContext.jsx';
@@ -46,7 +46,7 @@ function Builder({ steps }) {
   const addToCart = () => {
     addCustomPizza({
       itemIds: allSelectedIds(state, steps),
-      name: 'Custom pizza',
+      name: CUSTOM_PIZZA_LABEL,
       details: chosen.map((option) => option.name),
     });
     navigate(ROUTES.cart);
