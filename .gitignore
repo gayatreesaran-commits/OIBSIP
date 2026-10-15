@@ -1,2 +1,23 @@
+# Assistant and tooling state
 .remember/
 .superpowers/
+
+# Defaults for every project in this repository (each task folder can add its own)
+node_modules/
+dist/
+build/
+coverage/
+.cache/
+logs/
+*.log
+
+# secrets: only *.example files are tracked
+.env
+.env.*
+!.env.example
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
