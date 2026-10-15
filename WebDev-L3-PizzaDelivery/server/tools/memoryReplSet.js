@@ -2,10 +2,12 @@ import { MongoMemoryReplSet } from 'mongodb-memory-server';
 
 // mongod occasionally stalls in its first seconds (antivirus scanning the fresh data dir);
 // a short timeout plus retries recovers faster than one long wait.
-const LAUNCH_TIMEOUT_MS = 30_000;
-const START_ATTEMPTS = 2;
-// create() can stall past launchTimeout (seen on Windows), so the whole startup gets a hard cap.
-const STARTUP_DEADLINE_MS = 75_000;
+const DEFAULTS = Object.freeze({
+  launchTimeoutMs: 30_000,
+  attempts: 2,
+  // create() can stall past launchTimeout (seen on Windows), so the whole startup gets a hard cap.
+  deadlineMs: 75_000,
+});
 
 function withDeadline(promise, ms) {
   let timer;
@@ -15,17 +17,17 @@ function withDeadline(promise, ms) {
   return Promise.race([promise, deadline]).finally(() => clearTimeout(timer));
 }
 
-async function startWithRetries() {
+async function startWithRetries({ launchTimeoutMs, attempts }) {
   let lastError;
-  for (let attempt = 1; attempt <= START_ATTEMPTS; attempt += 1) {
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
     try {
       return await MongoMemoryReplSet.create({
         replSet: { count: 1 },
-        instanceOpts: [{ launchTimeout: LAUNCH_TIMEOUT_MS }],
+        instanceOpts: [{ launchTimeout: launchTimeoutMs }],
       });
     } catch (error) {
       lastError = error;
-      process.stderr.write(`mongod start attempt ${attempt}/${START_ATTEMPTS} failed\n`);
+      process.stderr.write(`mongod start attempt ${attempt}/${attempts} failed\n`);
     }
   }
   throw lastError;
@@ -35,6 +37,7 @@ async function startWithRetries() {
  * Starts a throwaway single-node replica set. A replica set (not a standalone server) is
  * needed because the app relies on multi-document transactions for stock and payments.
  */
-export function startMemoryReplSet() {
-  return withDeadline(startWithRetries(), STARTUP_DEADLINE_MS);
+export function startMemoryReplSet(options = {}) {
+  const settings = { ...DEFAULTS, ...options };
+  return withDeadline(startWithRetries(settings), settings.deadlineMs);
 }

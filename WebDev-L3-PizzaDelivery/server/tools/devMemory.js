@@ -15,6 +15,8 @@ import { startMemoryReplSet } from './memoryReplSet.js';
 const FAILURE_EXIT_CODE = 1;
 const SECRET_BYTES = 32;
 const DEMO_DATABASE = 'pizza_demo';
+// Interactive use can afford to wait: a cold mongod on Windows sometimes needs a few tries.
+const STARTUP = { launchTimeoutMs: 45_000, attempts: 4, deadlineMs: 240_000 };
 const DEMO = {
   ADMIN_EMAIL: 'admin@pizza.test',
   ADMIN_PASSWORD: 'Admin-demo-pass-1',
@@ -34,7 +36,7 @@ const runNode = (script, env) =>
   });
 
 async function main() {
-  const replSet = await startMemoryReplSet();
+  const replSet = await startMemoryReplSet(STARTUP);
   const uri = new URL(replSet.getUri());
   uri.pathname = `/${DEMO_DATABASE}`;
 

@@ -11,6 +11,17 @@ internship (Level 3).
 **Stack:** React 19 + Vite + Tailwind 4 · Node 22+ / Express 5 · MongoDB (Mongoose) · JWT ·
 Razorpay (test mode) · nodemailer · node-cron.
 
+## Screenshots
+
+| | |
+|---|---|
+| ![Menu](docs/screenshots/01-menu.jpg) | ![Pizza builder](docs/screenshots/02-builder.jpg) |
+| House favourites | Builder: the pizza assembles as you choose |
+| ![Order summary](docs/screenshots/03-summary.jpg) | ![Order tracker](docs/screenshots/04-order-tracker.jpg) |
+| Server-priced summary before paying | Live tracker, updates without a refresh |
+| ![Kitchen board](docs/screenshots/05-admin-orders.jpg) | ![Inventory](docs/screenshots/06-admin-inventory.jpg) |
+| Admin: paid orders, one click to the next stage | Admin: stock with a low-stock flag |
+
 ## Quick start (no accounts needed)
 
 Requires Node 22.9 or newer and [pnpm](https://pnpm.io).
@@ -36,7 +47,8 @@ Open http://localhost:5173. `pnpm dev:memory` prints the demo logins:
 
 Emails (verification, password reset, low-stock alerts) go to Ethereal's fake inbox: the server
 log prints a **preview link** for each one, so nothing real is ever sent. Payments use a
-built-in test checkout. The first start downloads a MongoDB binary (roughly 800 MB, once).
+built-in test checkout. The first start downloads a MongoDB binary (roughly 800 MB, once) and can take a minute or two;
+if it reports a timeout, run it again.
 
 ## Running against MongoDB Atlas
 
