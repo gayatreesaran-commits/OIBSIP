@@ -67,6 +67,13 @@ const REQUIRED_BY_SELECTION = [
 ];
 
 export const envSchema = baseSchema.superRefine((env, ctx) => {
+  if (env.EMAIL_PROVIDER === EMAIL_PROVIDER.LOG && env.NODE_ENV === NODE_ENV.PRODUCTION) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['EMAIL_PROVIDER'],
+      message: 'the log provider sends nothing and must not be used in production',
+    });
+  }
   for (const { when, vars } of REQUIRED_BY_SELECTION) {
     if (!when(env)) continue;
     for (const name of vars) {

@@ -20,7 +20,7 @@ The server exits at startup with one readable message if any environment value i
 | `JWT_SECRET` | **yes** | | At least 32 characters |
 | `CLIENT_ORIGIN` | **yes** | | Comma-separated browser origins allowed by CORS |
 | `CLIENT_BASE_URL` | no | first `CLIENT_ORIGIN` | Base URL used in email links |
-| `EMAIL_PROVIDER` | no | `ethereal` | `ethereal` or `smtp` |
+| `EMAIL_PROVIDER` | no | `ethereal` | `ethereal` (fake inbox), `log` (prints emails and links to the server log; development only), or `smtp` |
 | `EMAIL_FROM_ADDRESS`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS` | with `smtp` | | SMTP account |
 | `PAYMENT_PROVIDER` | no | `mock` | `mock` or `razorpay` |
 | `MOCK_PAYMENT_SECRET` | with `mock` | | Signs the test checkout |

@@ -53,9 +53,15 @@ export function createAuthService({
       type: TOKEN_TYPE.EMAIL_VERIFICATION,
       ttlMs: oneTimeTokens.verifyEmailTtlMs,
     });
-    return sendQuietly(() => notificationService.sendVerificationEmail({ user, rawToken }), {
-      userId: user._id,
-    });
+    const sent = await sendQuietly(
+      () => notificationService.sendVerificationEmail({ user, rawToken }),
+      { userId: user._id },
+    );
+    // A link that never left must not start the resend cooldown, or "resend" would do nothing.
+    if (!sent) {
+      await tokenRepository.deleteAllFor({ user: user._id, type: TOKEN_TYPE.EMAIL_VERIFICATION });
+    }
+    return sent;
   };
 
   const authenticate = async ({ email, password, role }) => {
@@ -134,9 +140,13 @@ export function createAuthService({
         type: TOKEN_TYPE.PASSWORD_RESET,
         ttlMs: oneTimeTokens.resetPasswordTtlMs,
       });
-      await sendQuietly(() => notificationService.sendPasswordResetEmail({ user, rawToken }), {
-        userId: user._id,
-      });
+      const sent = await sendQuietly(
+        () => notificationService.sendPasswordResetEmail({ user, rawToken }),
+        { userId: user._id },
+      );
+      if (!sent) {
+        await tokenRepository.deleteAllFor({ user: user._id, type: TOKEN_TYPE.PASSWORD_RESET });
+      }
     },
 
     async resetPassword({ token, password }) {

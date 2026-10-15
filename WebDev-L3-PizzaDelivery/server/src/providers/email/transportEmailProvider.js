@@ -1,5 +1,6 @@
 import { ERROR_CODE } from '../../constants/index.js';
 import { UpstreamError } from '../../utils/errors/index.js';
+import { withTimeout } from '../../utils/timeout.js';
 
 /**
  * Shared behaviour for providers that send through a nodemailer transport. Concrete
@@ -9,14 +10,21 @@ export function createTransportEmailProvider({
   resolveTransport,
   resolveFrom,
   resolvePreviewUrl,
+  sendTimeoutMs,
   logger,
 }) {
   return {
     async sendMail({ to, subject, html, text }) {
       try {
-        const transport = await resolveTransport();
-        const from = await resolveFrom();
-        const info = await transport.sendMail({ from, to, subject, html, text });
+        const info = await withTimeout(
+          (async () => {
+            const transport = await resolveTransport();
+            const from = await resolveFrom();
+            return transport.sendMail({ from, to, subject, html, text });
+          })(),
+          sendTimeoutMs,
+          `Sending email timed out after ${sendTimeoutMs}ms. Check the network or EMAIL_PROVIDER.`,
+        );
         const previewUrl = resolvePreviewUrl?.(info) || undefined;
         logger.info({ to, subject, messageId: info.messageId, previewUrl }, 'email sent');
         return { messageId: info.messageId, previewUrl };

@@ -75,6 +75,13 @@ describe('parseEnv', () => {
     expect(() => parseEnv({ ...validEnv, MONGODB_URI: '' })).toThrow(/MONGODB_URI/);
   });
 
+  it('allows the log email provider in development but never in production', () => {
+    expect(parseEnv({ ...validEnv, EMAIL_PROVIDER: 'log' }).EMAIL_PROVIDER).toBe('log');
+    expect(() => parseEnv({ ...validEnv, EMAIL_PROVIDER: 'log', NODE_ENV: 'production' })).toThrow(
+      /must not be used in production/,
+    );
+  });
+
   it('returns a frozen object', () => {
     expect(Object.isFrozen(parseEnv(validEnv))).toBe(true);
   });

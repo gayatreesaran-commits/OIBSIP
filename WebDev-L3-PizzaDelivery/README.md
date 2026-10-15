@@ -50,28 +50,6 @@ log prints a **preview link** for each one, so nothing real is ever sent. Paymen
 built-in test checkout. The first start downloads a MongoDB binary (roughly 800 MB, once) and can take a minute or two;
 if it reports a timeout, run it again.
 
-## Local MongoDB (no Atlas, data kept between runs)
-
-If you do not want to use Atlas, `pnpm dev:memory` forgets everything on exit and its in-memory
-database can be slow to start on Windows. This runs one real local MongoDB instead:
-
-```bash
-cd server
-cp .env.example .env      # set JWT_SECRET, plus ADMIN_EMAIL / ADMIN_PASSWORD for an admin
-pnpm dev:local            # starts MongoDB, seeds the menu, creates the admin, starts the API
-```
-
-- The database runs as a background process on port **27018** with its data in
-  `server/.cache/mongo-data` (git-ignored). It keeps running after you stop the API, so the next
-  `pnpm dev:local` starts in seconds with your data intact.
-- `pnpm db:status` shows whether it is running; `pnpm db:stop` shuts it down;
-  `pnpm db:start` starts it without the API.
-- `dev:local` always uses this local database, even if `MONGODB_URI` in `.env` points at Atlas.
-- It needs a `mongod` binary. It uses `$MONGOD_PATH` if set, then the copy cached by
-  `pnpm dev:memory` in `~/.cache/mongodb-binaries`, then `mongod` on your PATH. If you have none,
-  install [MongoDB Community](https://www.mongodb.com/try/download/community) or run
-  `pnpm dev:memory` once so a copy is downloaded.
-
 ## Running against MongoDB Atlas
 
 ```bash
@@ -91,18 +69,22 @@ Both are provider switches in `server/.env`; no code changes.
 
 | Setting | Now | Later |
 |---|---|---|
-| `EMAIL_PROVIDER` | `ethereal` (fake inbox) | `smtp` + `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `EMAIL_FROM_ADDRESS` |
+| `EMAIL_PROVIDER` | `ethereal` (fake inbox) or `log` | `smtp` + `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `EMAIL_FROM_ADDRESS` |
 | `PAYMENT_PROVIDER` | `mock` (local test checkout) | `razorpay` + `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET` (free test keys) |
 
 The browser learns which checkout to open from the API, so the client needs no change either.
+
+**Ethereal needs internet access** to `api.nodemailer.com`. If your network, firewall or VPN blocks
+it, registration still works but no email is produced (the server log shows `ETIMEDOUT`). Set
+`EMAIL_PROVIDER=log` instead: every email is printed in the server log with its links listed, so
+you can copy the confirmation or reset link straight from the terminal. It is refused when
+`NODE_ENV=production`.
 
 ## Commands
 
 | Where | Command | What it does |
 |---|---|---|
 | `server` | `pnpm dev` / `pnpm start` | Run the API (watch mode / plain) |
-| `server` | `pnpm dev:local` | API on a persistent local MongoDB (no Atlas), seeded, with your admin |
-| `server` | `pnpm db:start`, `db:stop`, `db:status` | Control the local MongoDB |
 | `server` | `pnpm dev:memory` | API on a disposable in-memory database, with demo users |
 | `server` | `pnpm seed`, `pnpm create-admin` | Load catalog; create the admin |
 | `server` | `pnpm test` | Full suite against a real MongoDB replica set (see below) |

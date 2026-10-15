@@ -97,6 +97,21 @@ describe('registration and email verification', () => {
     expect(res.body.verificationEmailSent).toBe(false);
   });
 
+  it('lets the user resend immediately when the first email never left', async () => {
+    ctx.fakes.emailProvider.sendMail.mockRejectedValueOnce(new Error('network down'));
+    const registered = await register();
+    expect(registered.body.verificationEmailSent).toBe(false);
+    expect(ctx.fakes.emailProvider.outbox).toHaveLength(0);
+
+    // No cooldown wait: the failed attempt must not count as a delivered link.
+    await api.post(`${base}/auth/resend-verification`).send({ email: customer.email });
+    expect(ctx.fakes.emailProvider.outbox).toHaveLength(1);
+
+    const token = ctx.fakes.emailProvider.lastTokenFor(customer.email);
+    const verified = await api.post(`${base}/auth/verify-email`).send({ token });
+    expect(verified.status).toBe(HTTP_STATUS.OK);
+  });
+
   it('honours the resend cooldown, then mails a fresh link', async () => {
     await register();
     const sent = () => ctx.fakes.emailProvider.outbox.length;

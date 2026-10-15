@@ -16,6 +16,7 @@ export function createSmtpProvider({ env, mailConfig, nodemailer, logger }) {
   return createTransportEmailProvider({
     resolveTransport: () => transport,
     resolveFrom: () => from,
+    sendTimeoutMs: mailConfig.transport.sendTimeoutMs,
     logger,
   });
 }

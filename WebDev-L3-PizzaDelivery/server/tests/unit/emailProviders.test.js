@@ -93,6 +93,65 @@ describe('smtp email provider', () => {
   });
 });
 
+describe('ethereal resilience', () => {
+  it('does not give up forever after the inbox could not be created', async () => {
+    const mailer = fakeMailer();
+    mailer.createTestAccount
+      .mockRejectedValueOnce(new Error('network unreachable'))
+      .mockResolvedValue({
+        user: 'u@ethereal.email',
+        pass: 'pw',
+        smtp: { host: 'smtp.ethereal.email', port: 587, secure: false },
+      });
+    const provider = createEmailProvider({
+      env: { EMAIL_PROVIDER: 'ethereal' },
+      mailConfig,
+      logger,
+      mailer,
+    });
+
+    await expect(provider.sendMail(message)).rejects.toMatchObject({
+      code: ERROR_CODE.EMAIL_DELIVERY_FAILED,
+    });
+    await expect(provider.sendMail(message)).resolves.toMatchObject({ messageId: 'm-1' });
+  });
+
+  it('fails fast when the network never answers', async () => {
+    const mailer = fakeMailer();
+    mailer.createTestAccount.mockReturnValue(new Promise(() => {}));
+    const provider = createEmailProvider({
+      env: { EMAIL_PROVIDER: 'ethereal' },
+      mailConfig: { ...mailConfig, transport: { ...mailConfig.transport, sendTimeoutMs: 20 } },
+      logger,
+      mailer,
+    });
+    await expect(provider.sendMail(message)).rejects.toMatchObject({
+      code: ERROR_CODE.EMAIL_DELIVERY_FAILED,
+    });
+  });
+});
+
+describe('log email provider', () => {
+  it('prints the message links instead of sending anything', async () => {
+    const info = vi.fn();
+    const provider = createEmailProvider({
+      env: { EMAIL_PROVIDER: 'log' },
+      mailConfig,
+      logger: { info },
+    });
+    const result = await provider.sendMail({
+      ...message,
+      text: 'Confirm: https://pizza.test/verify-email?token=abc123 thanks',
+    });
+
+    expect(result.messageId).toMatch(/^log-/);
+    expect(info).toHaveBeenCalledWith(
+      expect.objectContaining({ links: ['https://pizza.test/verify-email?token=abc123'] }),
+      expect.stringContaining('NOT sent'),
+    );
+  });
+});
+
 describe('createEmailProvider', () => {
   it('rejects an unknown provider name', () => {
     expect(() =>
