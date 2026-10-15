@@ -52,6 +52,29 @@ describe('parseEnv', () => {
     expect(env.PAYMENT_PROVIDER).toBe('razorpay');
   });
 
+  it('treats blank values, as left by a copied .env.example, as not set', () => {
+    const env = parseEnv({
+      ...validEnv,
+      SMTP_HOST: '',
+      SMTP_PORT: '',
+      RAZORPAY_KEY_ID: '  ',
+      ADMIN_EMAIL: '',
+    });
+    expect(env.SMTP_HOST).toBeUndefined();
+    expect(env.RAZORPAY_KEY_ID).toBeUndefined();
+    expect(env.PORT).toBe(4000);
+  });
+
+  it('still reports a blank value that the selected provider needs', () => {
+    expect(() => parseEnv({ ...validEnv, EMAIL_PROVIDER: 'smtp', SMTP_HOST: '' })).toThrow(
+      /SMTP_HOST/,
+    );
+  });
+
+  it('still reports a blank required value', () => {
+    expect(() => parseEnv({ ...validEnv, MONGODB_URI: '' })).toThrow(/MONGODB_URI/);
+  });
+
   it('returns a frozen object', () => {
     expect(Object.isFrozen(parseEnv(validEnv))).toBe(true);
   });
