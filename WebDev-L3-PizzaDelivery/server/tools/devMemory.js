@@ -8,9 +8,9 @@
  *
  * Usage: pnpm dev:memory
  */
-import { spawn } from 'node:child_process';
 import { randomBytes } from 'node:crypto';
 import { startMemoryReplSet } from './memoryReplSet.js';
+import { runNode, startNode } from './runNode.js';
 
 const FAILURE_EXIT_CODE = 1;
 const SECRET_BYTES = 32;
@@ -23,17 +23,6 @@ const DEMO = {
   DEMO_CUSTOMER_EMAIL: 'customer@pizza.test',
   DEMO_CUSTOMER_PASSWORD: 'Customer-demo-pass-1',
 };
-
-// Asynchronous on purpose: the in-memory MongoDB lives in this process, so blocking the
-// event loop while a child talks to it can stall the database.
-const runNode = (script, env) =>
-  new Promise((resolve) => {
-    const child = spawn(process.execPath, ['--env-file-if-exists=.env', script], {
-      env,
-      stdio: 'inherit',
-    });
-    child.on('exit', (status) => resolve(status));
-  });
 
 async function main() {
   const replSet = await startMemoryReplSet(STARTUP);
@@ -63,10 +52,7 @@ async function main() {
     `\nDemo admin: ${env.ADMIN_EMAIL} / ${env.ADMIN_PASSWORD} (open /admin/login)\n\n`,
   );
 
-  const server = spawn(process.execPath, ['--env-file-if-exists=.env', 'src/server.js'], {
-    env,
-    stdio: 'inherit',
-  });
+  const server = startNode('src/server.js', env);
 
   const stop = async () => {
     server.kill();

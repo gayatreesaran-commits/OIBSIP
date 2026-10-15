@@ -10,7 +10,11 @@
   "scripts": {
     "dev": "node --watch --env-file-if-exists=.env src/server.js",
     "start": "node --env-file-if-exists=.env src/server.js",
+    "dev:local": "node tools/devLocal.js",
     "dev:memory": "node tools/devMemory.js",
+    "db:start": "node tools/localMongo.js start",
+    "db:stop": "node tools/localMongo.js stop",
+    "db:status": "node tools/localMongo.js status",
     "seed": "node --env-file-if-exists=.env src/scripts/seed.js",
     "create-admin": "node --env-file-if-exists=.env src/scripts/createAdmin.js",
     "lint": "eslint .",
