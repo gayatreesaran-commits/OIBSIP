@@ -13,7 +13,7 @@ Razorpay (test mode) · nodemailer · node-cron.
 
 ## Quick start (no accounts needed)
 
-Requires Node 22 or newer and [pnpm](https://pnpm.io).
+Requires Node 22.9 or newer and [pnpm](https://pnpm.io).
 
 ```bash
 # 1. API with a throwaway in-memory database, seeded with menu, admin and a demo customer
