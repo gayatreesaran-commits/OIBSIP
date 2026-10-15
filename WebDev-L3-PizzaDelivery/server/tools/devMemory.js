@@ -3,7 +3,8 @@
  * whole app without an Atlas account. Data disappears when this process stops.
  *
  * It seeds the catalog, creates an admin, then starts the real server with the same
- * entrypoint as `pnpm start`. Anything you set in .env still wins over these defaults.
+ * entrypoint as `pnpm start`. Variables already set in your shell win over these defaults;
+ * a .env file does not, because Node's --env-file never overrides existing variables.
  *
  * Usage: pnpm dev:memory
  */

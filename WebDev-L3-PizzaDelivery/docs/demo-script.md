@@ -24,8 +24,8 @@ without cutting away.
 7. **Admin window**: sign in at `/admin/login`. Open **Orders**, move the order to *In Kitchen*,
    then *Sent to Delivery*. In the customer window, show the tracker updating on its own.
 8. **Inventory**: show stock reduced for the ingredients used. Set one base's stock below its
-   threshold. Within the scheduled interval (or on restart) show the **low-stock email** preview
-   link in the server terminal.
+   threshold. Within the scheduled interval show the **low-stock email** preview link in the
+   server terminal.
 9. **Forgot password**: request a reset, open the preview link, set a new password, sign in again.
 10. Briefly show `server/config` and `docs/configuration.md` to make the point that tunables are
     configuration, and `.env` switches email and payment providers.

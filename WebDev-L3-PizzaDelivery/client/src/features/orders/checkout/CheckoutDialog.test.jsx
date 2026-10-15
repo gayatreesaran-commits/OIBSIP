@@ -116,6 +116,13 @@ describe('razorpay checkout', () => {
       />,
     );
 
+  it('does not wrap the hosted window in a modal dialog, which would make it unclickable', async () => {
+    renderCheckout();
+    await waitFor(() => expect(options).toBeDefined());
+    expect(document.querySelector('dialog[open]')).toBeNull();
+    expect(options.retry).toEqual({ enabled: false });
+  });
+
   it('opens the hosted window with the public key and the gateway order', async () => {
     renderCheckout();
     await waitFor(() => expect(options).toBeDefined());

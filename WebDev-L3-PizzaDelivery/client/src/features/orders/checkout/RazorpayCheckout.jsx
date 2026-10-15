@@ -47,6 +47,9 @@ export function RazorpayCheckout({ order, checkout, onPaid, onFailed }) {
               setError(failure);
             }
           },
+          // A failed attempt marks the order failed for good, so the widget must not offer a
+          // retry that could succeed (and charge) against an order we already closed.
+          retry: { enabled: false },
           modal: { ondismiss: failCheckout },
         });
         gateway.on('payment.failed', failCheckout);
